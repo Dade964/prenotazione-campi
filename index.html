@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione Campi da Calcetto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Stile per lo spinner di caricamento */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -20px;
+            margin-top: -20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="loader" class="loader hidden"></div>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Prenota il tuo Campo</h1>
+            <p class="text-gray-600 mt-2">Seleziona un campo, una data e un'ora per la tua partita.</p>
+        </header>
+
+        <!-- Sezione Principale -->
+        <main id="app" class="bg-white p-6 rounded-lg shadow-lg">
+            
+            <!-- Vista Utente -->
+            <div id="user-view">
+                <!-- Selezione Campo -->
+                <div class="mb-6">
+                    <label for="field-select" class="block text-lg font-medium text-gray-700 mb-2">1. Seleziona il Campo</label>
+                    <select id="field-select" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <!-- Le opzioni verranno popolate dinamicamente -->
+                    </select>
+                </div>
+
+                <!-- Selezione Data -->
+                <div class="mb-6">
+                    <label for="date-picker" class="block text-lg font-medium text-gray-700 mb-2">2. Seleziona la Data</label>
+                    <input type="date" id="date-picker" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- Griglia Orari Disponibili -->
+                <div id="time-slots-container" class="mb-6 hidden">
+                    <h3 class="text-lg font-medium text-gray-700 mb-3">3. Seleziona l'Orario di Inizio</h3>
+                    <div id="time-slots" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        <!-- Gli slot orari verranno popolati dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Modulo di Prenotazione -->
+                <div id="booking-form-container" class="hidden mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 class="text-2xl font-semibold mb-4 text-center">Completa la Prenotazione</h3>
+                    <p class="text-center text-gray-600 mb-6">Stai prenotando per le <span id="selected-time-display" class="font-bold"></span> del <span id="selected-date-display" class="font-bold"></span>.</p>
+                    <form id="booking-form">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                                <input type="text" id="name" name="name" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="email" name="email" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Recapito Telefonico</label>
+                                <input type="tel" id="phone" name="phone" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-3">
+                             <button type="button" id="cancel-booking-btn" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition">Annulla</button>
+                            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Conferma Prenotazione</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vista Admin -->
+            <div id="admin-view" class="hidden">
+                 <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Pannello Amministratore</h2>
+                    <button id="logout-btn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Logout</button>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4">Tutte le Prenotazioni</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contatti</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-bookings-table" class="bg-white divide-y divide-gray-200">
+                                <!-- Le righe verranno popolate dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Modulo Login Admin -->
+            <div id="admin-login" class="text-center p-4">
+                <button id="admin-login-btn" class="text-indigo-600 hover:underline">Sei un amministratore?</button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modale per messaggi -->
+    <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <h3 id="modal-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
+          <div class="mt-2 px-7 py-3">
+            <p id="modal-message" class="text-sm text-gray-500"></p>
+          </div>
+          <div class="items-center px-4 py-3">
+            <button id="modal-close-btn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURAZIONE SUPABASE ---
+        // Sostituisci con i tuoi dati presi dal pannello di Supabase
+        const SUPABASE_URL = 'https://smcccgzybprjdizsyjft.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY2NjZ3p5YnByamRpenN5amZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzIzOTUsImV4cCI6MjA3MTkwODM5NX0.h_zAAjn1zHRDfCUNBYx_URxDExvJGlnZ18oqtuNf7pQ'; 
+        
+        const { createClient } = supabase;
+        const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- ELEMENTI DEL DOM ---
+        const loader = document.getElementById('loader');
+        const fieldSelect = document.getElementById('field-select');
+        const datePicker = document.getElementById('date-picker');
+        const timeSlotsContainer = document.getElementById('time-slots-container');
+        const timeSlotsDiv = document.getElementById('time-slots');
+        const bookingFormContainer = document.getElementById('booking-form-container');
+        const bookingForm = document.getElementById('booking-form');
+        const selectedTimeDisplay = document.getElementById('selected-time-display');
+        const selectedDateDisplay = document.getElementById('selected-date-display');
+        const cancelBookingBtn = document.getElementById('cancel-booking-btn');
+        
+        const userView = document.getElementById('user-view');
+        const adminView = document.getElementById('admin-view');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const adminBookingsTable = document.getElementById('admin-bookings-table');
+
+        const messageModal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // --- STATO DELL'APPLICAZIONE ---
+        let selectedFieldId = null;
+        let selectedDate = null;
+        let selectedTime = null;
+        let fields = [];
+        let bookings = [];
+
+        // --- FUNZIONI DI UTILITÀ ---
+        const showLoader = () => loader.classList.remove('hidden');
+        const hideLoader = () => loader.classList.add('hidden');
+        
+        const showModal = (title, message) => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.classList.remove('hidden');
+        };
+
+        modalCloseBtn.addEventListener('click', () => {
+            messageModal.classList.add('hidden');
+        });
+
+        // Imposta la data minima del date picker a oggi
+        const setMinDate = () => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            datePicker.min = `${yyyy}-${mm}-${dd}`;
+            datePicker.value = `${yyyy}-${mm}-${dd}`;
+        };
+
+        // --- FUNZIONI DI LOGICA PRINCIPALE ---
+
+        /**
+         * Carica i campi dal database e popola il selettore
+         */
+        async function loadFields() {
+            showLoader();
+            const { data, error } = await dbClient.from('fields').select('*');
+            if (error) {
+                console.error('Errore nel caricamento dei campi:', error);
+                showModal('Errore', 'Impossibile caricare i campi dal database.');
+                hideLoader();
+                return;
+            }
+            fields = data;
+            fieldSelect.innerHTML = fields.map(field => `<option value="${field.id}">${field.name}</option>`).join('');
+            if (fields.length > 0) {
+                selectedFieldId = fields[0].id;
+                await loadBookingsForDate();
+            }
+            hideLoader();
+        }
+
+        /**
+         * Carica le prenotazioni per il campo e la data selezionati
+         */
+        async function loadBookingsForDate() {
+            selectedFieldId = fieldSelect.value;
+            selectedDate = datePicker.value;
+
+            if (!selectedFieldId || !selectedDate) return;
+
+            showLoader();
+            const { data, error } = await dbClient
+                .from('bookings')
+                .select('*')
+                .eq('field_id', selectedFieldId)
+                .eq('booking_date', selectedDate);
+
+            if (error) {
+                console.error('Errore nel caricamento delle prenotazioni:', error);
+                showModal('Errore', 'Impossibile caricare le prenotazioni.');
+                bookings = [];
+            } else {
+                bookings = data;
+            }
+            
+            displayTimeSlots();
+            hideLoader();
+        }
+
+        /**
+         * Mostra gli orari disponibili
+         */
+        function displayTimeSlots() {
+            timeSlotsContainer.classList.remove('hidden');
+            timeSlotsDiv.innerHTML = '';
+            
+            const bookedTimes = bookings.map(b => b.start_time.substring(0, 5));
+            
+            // Orari di apertura (es. dalle 9:00 alle 22:00)
+            for (let hour = 9; hour <= 22; hour++) {
+                const time = `${String(hour).padStart(2, '0')}:00`;
+                const isBooked = bookedTimes.includes(time);
+
+                const slot = document.createElement('button');
+                slot.textContent = time;
+                slot.dataset.time = time;
+                slot.disabled = isBooked;
+                slot.className = `p-3 rounded-md text-center font-semibold transition ${
+                    isBooked 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                }`;
+                timeSlotsDiv.appendChild(slot);
+            }
+        }
+
+        /**
+         * Gestisce la selezione di un orario
+         */
+        timeSlotsDiv.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON' && !e.target.disabled) {
+                selectedTime = e.target.dataset.time;
+                selectedDateDisplay.textContent = new Date(selectedDate).toLocaleDateString('it-IT');
+                selectedTimeDisplay.textContent = selectedTime;
+                bookingFormContainer.classList.remove('hidden');
+                bookingForm.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        /**
+         * Gestisce l'invio del modulo di prenotazione
+         */
+        bookingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader();
+
+            const formData = new FormData(bookingForm);
+            const bookingData = {
+                field_id: selectedFieldId,
+                booking_date: selectedDate,
+                start_time: selectedTime,
+                user_name: formData.get('name'),
+                user_email: formData.get('email'),
+                user_phone: formData.get('phone')
+            };
+
+            const { error } = await dbClient.from('bookings').insert([bookingData]);
+
+            hideLoader();
+            if (error) {
+                console.error('Errore nella creazione della prenotazione:', error);
+                showModal('Errore', 'Si è verificato un problema durante la prenotazione. Riprova.');
+            } else {
+                showModal('Successo!', 'La tua prenotazione è stata confermata con successo.');
+                bookingForm.reset();
+                bookingFormContainer.classList.add('hidden');
+                await loadBookingsForDate(); // Ricarica gli slot
+            }
+        });
+
+        /**
+         * Annulla la visualizzazione del form
+         */
+        cancelBookingBtn.addEventListener('click', () => {
+            bookingForm.reset();
+            bookingFormContainer.classList.add('hidden');
+        });
+
+
+        // --- LOGICA ADMIN ---
+
+        /**
+         * Gestisce il login dell'amministratore
+         */
+        adminLoginBtn.addEventListener('click', () => {
+            const password = prompt("Inserisci la password da amministratore:");
+            // **IMPORTANTE**: Questa è una password hardcoded solo per semplicità.
+            // In un'applicazione reale, usare un sistema di autenticazione sicuro!
+            if (password === "admin123") { 
+                userView.classList.add('hidden');
+                adminLoginBtn.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                loadAllBookings();
+            } else if (password !== null) {
+                alert("Password errata.");
+            }
+        });
+
+        /**
+         * Gestisce il logout
+         */
+        logoutBtn.addEventListener('click', () => {
+            adminView.classList.add('hidden');
+            userView.classList.remove('hidden');
+            adminLoginBtn.classList.remove('hidden');
+        });
+
+        /**
+         * Carica tutte le prenotazioni per la vista admin
+         */
+        async function loadAllBookings() {
+            showLoader();
+            const { data, error } = await dbClient
+                .from('bookings')
+                .select(`
+                    *,
+                    fields (name)
+                `)
+                .order('booking_date', { ascending: false })
+                .order('start_time', { ascending: false });
+
+            hideLoader();
+            if (error) {
+                console.error("Errore caricamento prenotazioni admin:", error);
+                showModal('Errore', 'Impossibile caricare le prenotazioni per l\'admin.');
+                return;
+            }
+
+            adminBookingsTable.innerHTML = data.map(booking => `
+                <tr data-id="${booking.id}">
+                    <td class="px-6 py-4 whitespace-nowrap">${booking.fields.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${new Date(booking.booking_date).toLocaleDateString('it-IT')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${booking.start_time.substring(0, 5)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${booking.user_name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${booking.user_email}</div>
+                        <div class="text-sm text-gray-500">${booking.user_phone}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editBooking('${booking.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Modifica</button>
+                        <button onclick="deleteBooking('${booking.id}')" class="text-red-600 hover:text-red-900">Annulla</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        /**
+         * Modifica una prenotazione (funzione globale per l'onclick)
+         */
+        window.editBooking = async (id) => {
+            const bookingToEdit = (await dbClient.from('bookings').select('*').eq('id', id).single()).data;
+            if (!bookingToEdit) return;
+
+            const newName = prompt("Nuovo nome:", bookingToEdit.user_name);
+            const newEmail = prompt("Nuova email:", bookingToEdit.user_email);
+            const newPhone = prompt("Nuovo telefono:", bookingToEdit.user_phone);
+
+            if (newName === null || newEmail === null || newPhone === null) return; // L'utente ha annullato
+
+            showLoader();
+            const { error } = await dbClient
+                .from('bookings')
+                .update({ user_name: newName, user_email: newEmail, user_phone: newPhone })
+                .eq('id', id);
+            
+            hideLoader();
+            if (error) {
+                showModal('Errore', 'Impossibile aggiornare la prenotazione.');
+            } else {
+                showModal('Successo', 'Prenotazione aggiornata.');
+                await loadAllBookings();
+                await loadBookingsForDate(); // Aggiorna anche la vista utente se è sulla stessa data
+            }
+        };
+
+        /**
+         * Cancella una prenotazione (funzione globale per l'onclick)
+         */
+        window.deleteBooking = async (id) => {
+            if (!confirm("Sei sicuro di voler annullare questa prenotazione?")) return;
+
+            showLoader();
+            const { error } = await dbClient.from('bookings').delete().eq('id', id);
+            hideLoader();
+
+            if (error) {
+                showModal('Errore', 'Impossibile annullare la prenotazione.');
+            } else {
+                showModal('Successo', 'Prenotazione annullata correttamente.');
+                await loadAllBookings();
+                await loadBookingsForDate(); // Aggiorna anche la vista utente
+            }
+        };
+
+        // --- EVENT LISTENERS ---
+        fieldSelect.addEventListener('change', loadBookingsForDate);
+        datePicker.addEventListener('change', loadBookingsForDate);
+
+        // --- INIZIALIZZAZIONE ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setMinDate();
+            loadFields();
+        });
+
+    </script>
+</body>
+</html>
