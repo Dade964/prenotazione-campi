@@ -305,10 +305,20 @@
             durationSelect.innerHTML = ''; let availableMinutes = 0; let currentTime = startTime;
             while (!isSlotBooked(currentTime) && availableMinutes < 180) {
                  availableMinutes += 30; const option = document.createElement('option'); option.value = availableMinutes;
-                 const hours = Math.floor(availableMinutes / 60); const minutes = availableMinutes % 60; let text = '';
-                 if (hours > 0) text += `${hours} or${hours > 1 ? 'e' : 'a'}`; if (minutes > 0) text += ` e ${minutes} min`;
-                 option.textContent = text.trim(); durationSelect.appendChild(option);
-                 const [h, m] = currentTime.split(':').map(Number); const d = new Date(); d.setHours(h, m + 30, 0, 0);
+                 const hours = Math.floor(availableMinutes / 60); const minutes = availableMinutes % 60; 
+                 let text = '';
+                 if (hours > 0) {
+                    text += `${hours} or${hours > 1 ? 'e' : 'a'}`;
+                 }
+                 if (minutes > 0) {
+                    text += `${text.length > 0 ? ' e ' : ''}${minutes} min`;
+                 }
+
+                 option.textContent = text.trim();
+                 durationSelect.appendChild(option);
+                 const [h, m] = currentTime.split(':').map(Number);
+                 const d = new Date();
+                 d.setHours(h, m + 30, 0, 0);
                  currentTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
             }
         }
