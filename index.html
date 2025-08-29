@@ -15,7 +15,6 @@
             position: fixed; top: 50%; left: 50%; margin-left: -20px; margin-top: -20px; z-index: 100;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Stili per i tab dell'admin */
         .tab-button.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -33,7 +32,7 @@
 
         <main id="app" class="bg-white p-6 rounded-lg shadow-lg">
             
-            <!-- Vista Utente -->
+            <!-- Vista Utente (invariata) -->
             <div id="user-view">
                 <div class="grid md:grid-cols-2 gap-8">
                     <div>
@@ -89,21 +88,37 @@
                     <button id="logout-btn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Logout</button>
                 </div>
                 
-                <!-- Tab Admin -->
                 <div class="border-b border-gray-200 mb-6">
                     <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                        <button class="tab-button active" data-tab="bookings">Gestione Prenotazioni</button>
-                        <button class="tab-button" data-tab="recurring">Prenotazioni Ricorrenti</button>
-                        <button class="tab-button" data-tab="settings">Impostazioni</button>
+                        <button class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="bookings">Gestione Prenotazioni</button>
+                        <button class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="recurring">Prenotazioni Ricorrenti</button>
+                        <button class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="settings">Impostazioni</button>
                     </nav>
                 </div>
 
-                <!-- Contenuto Tab -->
+                <!-- Contenuto Tab Prenotazioni con Filtri -->
                 <div id="tab-bookings" class="tab-content active">
                     <h3 class="text-xl font-semibold mb-4">Tutte le Prenotazioni</h3>
-                    <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contatti</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th></tr></thead><tbody id="admin-bookings-table" class="bg-white divide-y divide-gray-200"></tbody></table></div>
+                    <!-- Sezione Filtri ed Eliminazione -->
+                    <div class="flex flex-wrap gap-4 items-center mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <label for="filter-date" class="block text-sm font-medium text-gray-700">Filtra per Data</label>
+                            <input type="date" id="filter-date" class="mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="filter-name" class="block text-sm font-medium text-gray-700">Filtra per Nome</label>
+                            <input type="text" id="filter-name" placeholder="Cerca per nome..." class="mt-1 p-2 border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <button id="reset-filters-btn" class="self-end px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition">Resetta</button>
+                        <div class="ml-auto">
+                            <button id="delete-selected-btn" class="self-end px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:bg-red-300 disabled:cursor-not-allowed" disabled>Elimina Selezionati</button>
+                        </div>
+                    </div>
+                    <!-- Tabella Prenotazioni -->
+                    <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="p-4"><input type="checkbox" id="select-all-checkbox"></th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orario</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contatti</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th></tr></thead><tbody id="admin-bookings-table" class="bg-white divide-y divide-gray-200"></tbody></table></div>
                 </div>
 
+                <!-- Altri Tab Admin (invariati) -->
                 <div id="tab-recurring" class="tab-content">
                     <h3 class="text-xl font-semibold mb-4">Crea Prenotazioni Ricorrenti</h3>
                     <form id="recurring-booking-form" class="space-y-4 max-w-xl p-6 bg-gray-50 rounded-lg border">
@@ -124,7 +139,6 @@
                         <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Crea Prenotazioni</button>
                     </form>
                 </div>
-
                 <div id="tab-settings" class="tab-content">
                     <h3 class="text-xl font-semibold mb-4">Impostazioni Generali</h3>
                     <div class="grid md:grid-cols-2 gap-8">
@@ -147,7 +161,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div id="admin-login" class="text-center p-4 mt-4">
                 <button id="admin-login-btn" class="text-indigo-600 hover:underline">Sei un amministratore?</button>
             </div>
@@ -159,13 +173,24 @@
 
     <script>
         // --- CONFIGURAZIONE SUPABASE ---
-        const SUPABASE_URL = 'https://smcccgzybprjdizsyjft.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY2NjZ3p5YnByamRpenN5amZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzIzOTUsImV4cCI6MjA3MTkwODM5NX0.h_zAAjn1zHRDfCUNBYx_URxDExvJGlnZ18oqtuNf7pQ'; 
+        // !!! IMPORTANTE: SOSTITUISCI QUESTI VALORI !!!
+        // Devi inserire qui l'URL e la CHIAVE ANONIMA del tuo progetto Supabase
+        // per risolvere l'errore "Failed to fetch".
+        // Trovi questi dati nella dashboard del tuo progetto > Project Settings > API.
+        const SUPABASE_URL = 'https://smcccgzybprjdizsyjft.supabase.co'; // <-- INCOLLA QUI IL TUO URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY2NjZ3p5YnByamRpenN5amZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzIzOTUsImV4cCI6MjA3MTkwODM5NX0.h_zAAjn1zHRDfCUNBYx_URxDExvJGlnZ18oqtuNf7pQ'; // <-- INCOLLA QUI LA TUA CHIAVE ANONIMA (anon public)
         
         const { createClient } = supabase;
         const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ELEMENTI DEL DOM ---
+        // (La maggior parte è invariata, aggiungo solo i nuovi elementi)
+        const filterDate = document.getElementById('filter-date');
+        const filterName = document.getElementById('filter-name');
+        const resetFiltersBtn = document.getElementById('reset-filters-btn');
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        
         const loader = document.getElementById('loader');
         const fieldSelect = document.getElementById('field-select');
         const datePicker = document.getElementById('date-picker');
@@ -178,19 +203,17 @@
         const selectedTimeDisplay = document.getElementById('selected-time-display');
         const selectedDateDisplay = document.getElementById('selected-date-display');
         const cancelBookingBtn = document.getElementById('cancel-booking-btn');
-        
         const userView = document.getElementById('user-view');
         const adminView = document.getElementById('admin-view');
         const adminLoginBtn = document.getElementById('admin-login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const adminBookingsTable = document.getElementById('admin-bookings-table');
-
         const messageModal = document.getElementById('message-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
         const modalCloseBtn = document.getElementById('modal-close-btn');
 
-        // --- STATO DELL'APPLICAZIONE ---
+        // --- STATO DELL'APPLICAZIONE (invariato) ---
         let selectedFieldId = null;
         let selectedDate = null;
         let selectedTime = null;
@@ -198,18 +221,15 @@
         let bookings = [];
         let settings = { opening_hour: '09:00', closing_hour: '22:00' };
 
-        // --- FUNZIONI DI UTILITÀ ---
+        // --- FUNZIONI DI UTILITÀ (invariate) ---
         const showLoader = () => loader.classList.remove('hidden');
         const hideLoader = () => loader.classList.add('hidden');
-        
         const showModal = (title, message) => {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
             messageModal.classList.remove('hidden');
         };
-
         modalCloseBtn.addEventListener('click', () => messageModal.classList.add('hidden'));
-
         const setMinDate = () => {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -219,361 +239,249 @@
             datePicker.value = `${yyyy}-${mm}-${dd}`;
         };
 
-        // --- FUNZIONI DI LOGICA PRINCIPALE ---
-
+        // --- FUNZIONI DI LOGICA PRINCIPALE (invariate) ---
         async function loadSettings() {
             const { data, error } = await dbClient.from('settings').select('*');
             if (error) {
                 console.error('Errore caricamento impostazioni:', error);
                 showModal('Errore Critico', 'Impossibile caricare le impostazioni. Usando valori di default.');
             } else {
-                data.forEach(setting => {
-                    settings[setting.key] = setting.value;
-                });
+                data.forEach(setting => { settings[setting.key] = setting.value; });
             }
         }
-
         async function loadFields() {
             const { data, error } = await dbClient.from('fields').select('*').order('name');
-            if (error) {
-                console.error('Errore nel caricamento dei campi:', error);
-                return;
-            }
+            if (error) { console.error('Errore nel caricamento dei campi:', error); return; }
             fields = data;
             const optionsHtml = fields.map(field => `<option value="${field.id}">${field.name}</option>`).join('');
             fieldSelect.innerHTML = optionsHtml;
             document.getElementById('recurring-field').innerHTML = optionsHtml;
-
             if (fields.length > 0) {
                 selectedFieldId = fields[0].id;
                 await loadBookingsForDate();
             }
         }
-
         async function loadBookingsForDate() {
             selectedFieldId = fieldSelect.value;
             selectedDate = datePicker.value;
             if (!selectedFieldId || !selectedDate) return;
-
             showLoader();
-            const { data, error } = await dbClient
-                .from('bookings')
-                .select('*')
-                .eq('field_id', selectedFieldId)
-                .eq('booking_date', selectedDate);
-
+            const { data, error } = await dbClient.from('bookings').select('*').eq('field_id', selectedFieldId).eq('booking_date', selectedDate);
             hideLoader();
-            if (error) {
-                console.error('Errore nel caricamento delle prenotazioni:', error);
-                bookings = [];
-            } else {
-                bookings = data;
-            }
+            if (error) { console.error('Errore nel caricamento delle prenotazioni:', error); bookings = []; } else { bookings = data; }
             displayTimeSlots();
         }
-
         function isSlotBooked(time) {
             const [hour, minute] = time.split(':').map(Number);
-            const checkTime = new Date();
-            checkTime.setHours(hour, minute, 0, 0);
-
+            const checkTime = new Date(); checkTime.setHours(hour, minute, 0, 0);
             for (const booking of bookings) {
                 const [startHour, startMinute] = booking.start_time.split(':').map(Number);
                 const [endHour, endMinute] = booking.end_time.split(':').map(Number);
-                
-                const startTime = new Date();
-                startTime.setHours(startHour, startMinute, 0, 0);
-                const endTime = new Date();
-                endTime.setHours(endHour, endMinute, 0, 0);
-
-                if (checkTime >= startTime && checkTime < endTime) {
-                    return true;
-                }
+                const startTime = new Date(); startTime.setHours(startHour, startMinute, 0, 0);
+                const endTime = new Date(); endTime.setHours(endHour, endMinute, 0, 0);
+                if (checkTime >= startTime && checkTime < endTime) { return true; }
             }
             return false;
         }
-
         function displayTimeSlots() {
             timeSlotsContainer.classList.remove('hidden');
             timeSlotsDiv.innerHTML = '';
-            
             const [startH, startM] = settings.opening_hour.split(':').map(Number);
             const [endH, endM] = settings.closing_hour.split(':').map(Number);
-
             for (let h = startH; h < endH || (h === endH && h < 23); h++) {
                 for (let m = 0; m < 60; m += 30) {
                     if (h === startH && m < startM) continue;
                     if (h === endH && m >= endM) continue;
-
                     const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                     const isBooked = isSlotBooked(time);
-
                     const slot = document.createElement('button');
-                    slot.textContent = time;
-                    slot.dataset.time = time;
-                    slot.disabled = isBooked;
-                    slot.className = `p-3 rounded-md text-center font-semibold transition ${
-                        isBooked 
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                        : 'bg-green-500 text-white hover:bg-green-600'
-                    }`;
+                    slot.textContent = time; slot.dataset.time = time; slot.disabled = isBooked;
+                    slot.className = `p-3 rounded-md text-center font-semibold transition ${ isBooked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600'}`;
                     timeSlotsDiv.appendChild(slot);
                 }
             }
         }
-
         function populateDurationOptions(startTime) {
-            durationSelect.innerHTML = '';
-            let availableMinutes = 0;
-            let currentTime = startTime;
-
-            while (!isSlotBooked(currentTime) && availableMinutes < 180) { // Max 3 ore
-                 availableMinutes += 30;
-                 const option = document.createElement('option');
-                 option.value = availableMinutes;
-                 
-                 const hours = Math.floor(availableMinutes / 60);
-                 const minutes = availableMinutes % 60;
-                 let text = '';
-
-                 if (hours > 0) {
-                    text += `${hours} or${hours > 1 ? 'e' : 'a'}`;
-                    if (minutes > 0) {
-                        text += ` e ${minutes} min`;
-                    }
-                 } else if (minutes > 0) {
-                    text += `${minutes} min`;
-                 }
-                 option.textContent = text.trim();
-
-                 durationSelect.appendChild(option);
-
-                 const [h, m] = currentTime.split(':').map(Number);
-                 const d = new Date();
-                 d.setHours(h, m + 30, 0, 0);
+            durationSelect.innerHTML = ''; let availableMinutes = 0; let currentTime = startTime;
+            while (!isSlotBooked(currentTime) && availableMinutes < 180) {
+                 availableMinutes += 30; const option = document.createElement('option'); option.value = availableMinutes;
+                 const hours = Math.floor(availableMinutes / 60); const minutes = availableMinutes % 60; let text = '';
+                 if (hours > 0) text += `${hours} or${hours > 1 ? 'e' : 'a'}`; if (minutes > 0) text += ` e ${minutes} min`;
+                 option.textContent = text.trim(); durationSelect.appendChild(option);
+                 const [h, m] = currentTime.split(':').map(Number); const d = new Date(); d.setHours(h, m + 30, 0, 0);
                  currentTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
             }
         }
-
         timeSlotsDiv.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON' && !e.target.disabled) {
                 selectedTime = e.target.dataset.time;
                 selectedDateDisplay.textContent = new Date(selectedDate).toLocaleDateString('it-IT');
                 selectedTimeDisplay.textContent = selectedTime;
                 selectedFieldDisplay.textContent = fieldSelect.options[fieldSelect.selectedIndex].text;
-                
                 populateDurationOptions(selectedTime);
-
                 bookingFormContainer.classList.remove('hidden');
                 bookingForm.scrollIntoView({ behavior: 'smooth' });
             }
         });
-
         bookingForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoader();
-
-            const formData = new FormData(bookingForm);
-            const duration = parseInt(formData.get('duration'));
-            
+            e.preventDefault(); showLoader();
+            const formData = new FormData(bookingForm); const duration = parseInt(formData.get('duration'));
             const [startH, startM] = selectedTime.split(':').map(Number);
-            const startDate = new Date();
-            startDate.setHours(startH, startM, 0, 0);
+            const startDate = new Date(); startDate.setHours(startH, startM, 0, 0);
             const endDate = new Date(startDate.getTime() + duration * 60000);
             const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-
-            const bookingData = {
-                field_id: selectedFieldId,
-                booking_date: selectedDate,
-                start_time: selectedTime,
-                end_time: endTime,
-                user_name: formData.get('name'),
-                user_email: formData.get('email'),
-                user_phone: formData.get('phone')
-            };
-
+            const bookingData = { field_id: selectedFieldId, booking_date: selectedDate, start_time: selectedTime, end_time: endTime, user_name: formData.get('name'), user_email: formData.get('email'), user_phone: formData.get('phone') };
             const { error } = await dbClient.from('bookings').insert([bookingData]);
-
             hideLoader();
-            if (error) {
-                showModal('Errore', 'Si è verificato un problema. Riprova.');
-            } else {
+            if (error) { showModal('Errore', 'Si è verificato un problema. Riprova.'); } else {
                 showModal('Successo!', 'La tua prenotazione è stata confermata.');
-                bookingForm.reset();
-                bookingFormContainer.classList.add('hidden');
-                await loadBookingsForDate();
+                bookingForm.reset(); bookingFormContainer.classList.add('hidden'); await loadBookingsForDate();
             }
         });
-        
-        cancelBookingBtn.addEventListener('click', () => {
-            bookingForm.reset();
-            bookingFormContainer.classList.add('hidden');
-        });
+        cancelBookingBtn.addEventListener('click', () => { bookingForm.reset(); bookingFormContainer.classList.add('hidden'); });
 
-        // --- LOGICA ADMIN ---
+        // --- LOGICA ADMIN (MODIFICATA) ---
+        
+        // Funzioni di login/logout e tab (invariate)
         adminLoginBtn.addEventListener('click', () => {
             const password = prompt("Inserisci la password da amministratore:");
-            if (password === "admin123") { // **USARE SUPABASE AUTH IN PRODUZIONE!**
-                userView.classList.add('hidden');
-                adminLoginBtn.classList.add('hidden');
-                adminView.classList.remove('hidden');
+            if (password === "admin123") {
+                userView.classList.add('hidden'); adminLoginBtn.classList.add('hidden'); adminView.classList.remove('hidden');
                 initializeAdminView();
-            } else if (password !== null) {
-                alert("Password errata.");
-            }
+            } else if (password !== null) { alert("Password errata."); }
         });
-
-        logoutBtn.addEventListener('click', () => {
-            adminView.classList.add('hidden');
-            userView.classList.remove('hidden');
-            adminLoginBtn.classList.remove('hidden');
-        });
-
-        function initializeAdminView() {
-            loadAllBookings();
-            loadAdminSettings();
-            loadAdminFields();
-        }
-
-        // Gestione Tab Admin
+        logoutBtn.addEventListener('click', () => { adminView.classList.add('hidden'); userView.classList.remove('hidden'); adminLoginBtn.classList.remove('hidden'); });
+        function initializeAdminView() { loadAllBookings(); loadAdminSettings(); loadAdminFields(); }
         adminView.addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-button')) {
                 const tabId = e.target.dataset.tab;
-                adminView.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                adminView.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active', 'border-indigo-500', 'text-indigo-600', 'border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300' ));
+                e.target.classList.add('active', 'border-indigo-500', 'text-indigo-600');
                 adminView.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                e.target.classList.add('active');
                 document.getElementById(`tab-${tabId}`).classList.add('active');
             }
         });
 
-        async function loadAllBookings() {
-            const { data, error } = await dbClient.from('bookings').select(`*, fields (name)`).order('booking_date', { ascending: false }).order('start_time', { ascending: false });
-            if (error) return;
-            adminBookingsTable.innerHTML = data.map(b => `
-                <tr data-id="${b.id}">
-                    <td class="px-6 py-4">${b.fields.name}</td>
-                    <td class="px-6 py-4">${new Date(b.booking_date).toLocaleDateString('it-IT')}</td>
-                    <td class="px-6 py-4">${b.start_time.substring(0,5)} - ${b.end_time.substring(0,5)}</td>
-                    <td class="px-6 py-4">${b.user_name}</td>
-                    <td class="px-6 py-4"><div class="text-sm">${b.user_email}</div><div class="text-sm text-gray-500">${b.user_phone}</div></td>
-                    <td class="px-6 py-4"><button onclick="editBooking('${b.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Modifica</button><button onclick="deleteBooking('${b.id}')" class="text-red-600 hover:text-red-900">Annulla</button></td>
-                </tr>`).join('');
-        }
+        /**
+         * NUOVO: Carica le prenotazioni per l'admin applicando i filtri
+         */
+        async function loadAllBookings(filters = {}) {
+            showLoader();
+            let query = dbClient.from('bookings').select(`*, fields (name)`);
+
+            if (filters.date) {
+                query = query.eq('booking_date', filters.date);
+            }
+            if (filters.name) {
+                // 'ilike' è case-insensitive e cerca corrispondenze parziali
+                query = query.ilike('user_name', `%${filters.name}%`);
+            }
         
-        window.editBooking = async (id) => { /* Logica invariata */ };
-        window.deleteBooking = async (id) => { /* Logica invariata */ };
-        
-        // Admin: Impostazioni
-        async function loadAdminSettings() {
-            document.getElementById('setting-opening-hour').value = settings.opening_hour;
-            document.getElementById('setting-closing-hour').value = settings.closing_hour;
+            query = query.order('booking_date', { ascending: false }).order('start_time', { ascending: false });
+
+            const { data, error } = await query;
+            hideLoader();
+
+            if (error) {
+                console.error("Errore caricamento prenotazioni admin:", error);
+                adminBookingsTable.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-red-500">Impossibile caricare le prenotazioni.</td></tr>`;
+                return;
+            }
+            
+            if (data.length === 0) {
+                 adminBookingsTable.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">Nessuna prenotazione trovata con i filtri attuali.</td></tr>`;
+            } else {
+                adminBookingsTable.innerHTML = data.map(b => `
+                    <tr data-id="${b.id}">
+                        <td class="p-4"><input type="checkbox" class="booking-checkbox" value="${b.id}"></td>
+                        <td class="px-6 py-4">${b.fields.name}</td>
+                        <td class="px-6 py-4">${new Date(b.booking_date).toLocaleDateString('it-IT')}</td>
+                        <td class="px-6 py-4">${b.start_time.substring(0,5)} - ${b.end_time.substring(0,5)}</td>
+                        <td class="px-6 py-4">${b.user_name}</td>
+                        <td class="px-6 py-4"><div class="text-sm">${b.user_email}</div><div class="text-sm text-gray-500">${b.user_phone}</div></td>
+                        <td class="px-6 py-4"><button onclick="editBooking('${b.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Modifica</button><button onclick="deleteBooking('${b.id}')" class="text-red-600 hover:text-red-900">Annulla</button></td>
+                    </tr>`).join('');
+            }
+            // Resetta lo stato del checkbox "seleziona tutto" e del pulsante elimina
+            selectAllCheckbox.checked = false;
+            updateDeleteButtonState();
         }
 
-        document.getElementById('hours-settings-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoader();
-            const opening = document.getElementById('setting-opening-hour').value;
-            const closing = document.getElementById('setting-closing-hour').value;
-            
-            const { error } = await dbClient.from('settings').upsert([
-                { key: 'opening_hour', value: opening },
-                { key: 'closing_hour', value: closing }
-            ], { onConflict: 'key' });
-            
-            hideLoader();
-            if (error) {
-                showModal('Errore', 'Impossibile salvare le impostazioni.');
-            } else {
-                showModal('Successo', 'Impostazioni salvate.');
-                await loadSettings();
-                await displayTimeSlots();
-            }
-        });
-
-        async function loadAdminFields() {
-            const list = document.getElementById('fields-list');
-            list.innerHTML = fields.map(f => `<li class="flex justify-between items-center p-2 bg-white rounded border"><span>${f.name}</span><button onclick="deleteField('${f.id}')" class="text-red-500 text-xs font-bold">ELIMINA</button></li>`).join('');
+        /**
+         * NUOVO: Aggiorna lo stato (abilitato/disabilitato) del pulsante di eliminazione
+         */
+        function updateDeleteButtonState() {
+            const anySelected = document.querySelector('.booking-checkbox:checked');
+            deleteSelectedBtn.disabled = !anySelected;
         }
 
-        document.getElementById('add-field-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nameInput = document.getElementById('new-field-name');
-            const name = nameInput.value.trim();
-            if (!name) return;
+        /**
+         * NUOVO: Elimina tutte le prenotazioni selezionate
+         */
+        async function deleteSelectedBookings() {
+            const selectedIds = Array.from(document.querySelectorAll('.booking-checkbox:checked')).map(cb => cb.value);
             
-            showLoader();
-            const { error } = await dbClient.from('fields').insert({ name: name });
-            hideLoader();
-            
-            if (error) {
-                showModal('Errore', 'Impossibile aggiungere il campo.');
-            } else {
-                nameInput.value = '';
-                await loadFields();
-                await loadAdminFields();
-            }
-        });
-
-        window.deleteField = async (id) => {
-            if (!confirm("Sei sicuro di voler eliminare questo campo? Tutte le prenotazioni associate verranno perse!")) return;
-            showLoader();
-            const { error } = await dbClient.from('fields').delete().eq('id', id);
-            hideLoader();
-            if (error) {
-                showModal('Errore', 'Impossibile eliminare il campo.');
-            } else {
-                await loadFields();
-                await loadAdminFields();
-            }
-        };
-
-        // Admin: Prenotazioni Ricorrenti
-        document.getElementById('recurring-booking-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const fieldId = form.querySelector('#recurring-field').value;
-            const dayOfWeek = parseInt(form.querySelector('#recurring-day').value);
-            const startDate = new Date(form.querySelector('#recurring-start-date').value);
-            const endDate = new Date(form.querySelector('#recurring-end-date').value);
-            
-            const newBookings = [];
-            let currentDate = startDate;
-
-            while (currentDate <= endDate) {
-                if (currentDate.getDay() === dayOfWeek) {
-                    newBookings.push({
-                        field_id: fieldId,
-                        booking_date: currentDate.toISOString().split('T')[0],
-                        start_time: form.querySelector('#recurring-start-time').value,
-                        end_time: form.querySelector('#recurring-end-time').value,
-                        user_name: form.querySelector('#recurring-name').value,
-                        user_email: form.querySelector('#recurring-email').value,
-                        user_phone: form.querySelector('#recurring-phone').value,
-                    });
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            if (newBookings.length === 0) {
-                showModal('Attenzione', 'Nessuna data corrispondente trovata nel periodo selezionato.');
+            if (selectedIds.length === 0) {
+                showModal('Attenzione', 'Nessuna prenotazione selezionata.');
                 return;
             }
 
-            if (!confirm(`Stai per creare ${newBookings.length} prenotazioni. Continuare?`)) return;
+            if (!confirm(`Sei sicuro di voler eliminare ${selectedIds.length} prenotazioni? L'azione è irreversibile.`)) return;
 
             showLoader();
-            const { error } = await dbClient.from('bookings').insert(newBookings);
+            const { error } = await dbClient.from('bookings').delete().in('id', selectedIds);
             hideLoader();
 
             if (error) {
-                showModal('Errore', `Si è verificato un errore: ${error.message}`);
+                showModal('Errore', `Impossibile eliminare le prenotazioni: ${error.message}`);
             } else {
-                showModal('Successo', `${newBookings.length} prenotazioni create con successo.`);
-                form.reset();
-                await loadAllBookings();
+                showModal('Successo', `${selectedIds.length} prenotazioni eliminate.`);
+                applyFilters(); // Ricarica la lista con i filtri attuali
+            }
+        }
+        
+        // Altre funzioni admin (invariate)
+        async function loadAdminSettings() { document.getElementById('setting-opening-hour').value = settings.opening_hour; document.getElementById('setting-closing-hour').value = settings.closing_hour; }
+        document.getElementById('hours-settings-form').addEventListener('submit', async (e) => { e.preventDefault(); showLoader(); const opening = document.getElementById('setting-opening-hour').value; const closing = document.getElementById('setting-closing-hour').value; const { error } = await dbClient.from('settings').upsert([{ key: 'opening_hour', value: opening }, { key: 'closing_hour', value: closing }], { onConflict: 'key' }); hideLoader(); if (error) { showModal('Errore', 'Impossibile salvare le impostazioni.'); } else { showModal('Successo', 'Impostazioni salvate.'); await loadSettings(); await displayTimeSlots(); } });
+        async function loadAdminFields() { const list = document.getElementById('fields-list'); list.innerHTML = fields.map(f => `<li class="flex justify-between items-center p-2 bg-white rounded border"><span>${f.name}</span><button onclick="deleteField('${f.id}')" class="text-red-500 text-xs font-bold">ELIMINA</button></li>`).join(''); }
+        document.getElementById('add-field-form').addEventListener('submit', async (e) => { e.preventDefault(); const nameInput = document.getElementById('new-field-name'); const name = nameInput.value.trim(); if (!name) return; showLoader(); const { error } = await dbClient.from('fields').insert({ name: name }); hideLoader(); if (error) { showModal('Errore', 'Impossibile aggiungere il campo.'); } else { nameInput.value = ''; await loadFields(); await loadAdminFields(); } });
+        window.deleteField = async (id) => { if (!confirm("Sei sicuro? Tutte le prenotazioni associate verranno perse!")) return; showLoader(); const { error } = await dbClient.from('fields').delete().eq('id', id); hideLoader(); if (error) { showModal('Errore', 'Impossibile eliminare il campo.'); } else { await loadFields(); await loadAdminFields(); } };
+        document.getElementById('recurring-booking-form').addEventListener('submit', async (e) => { e.preventDefault(); const form = e.target; const fieldId = form.querySelector('#recurring-field').value; const dayOfWeek = parseInt(form.querySelector('#recurring-day').value); const startDate = new Date(form.querySelector('#recurring-start-date').value); const endDate = new Date(form.querySelector('#recurring-end-date').value); const newBookings = []; let currentDate = startDate; while (currentDate <= endDate) { if (currentDate.getDay() === dayOfWeek) { newBookings.push({ field_id: fieldId, booking_date: currentDate.toISOString().split('T')[0], start_time: form.querySelector('#recurring-start-time').value, end_time: form.querySelector('#recurring-end-time').value, user_name: form.querySelector('#recurring-name').value, user_email: form.querySelector('#recurring-email').value, user_phone: form.querySelector('#recurring-phone').value, }); } currentDate.setDate(currentDate.getDate() + 1); } if (newBookings.length === 0) { showModal('Attenzione', 'Nessuna data corrispondente trovata.'); return; } if (!confirm(`Stai per creare ${newBookings.length} prenotazioni. Continuare?`)) return; showLoader(); const { error } = await dbClient.from('bookings').insert(newBookings); hideLoader(); if (error) { showModal('Errore', `Si è verificato un errore: ${error.message}`); } else { showModal('Successo', `${newBookings.length} prenotazioni create.`); form.reset(); await loadAllBookings(); } });
+        window.editBooking = async (id) => { const { data: bookingToEdit, error: fetchError } = await dbClient.from('bookings').select('*').eq('id', id).single(); if (fetchError || !bookingToEdit) { showModal('Errore', 'Impossibile trovare la prenotazione.'); return; } const newName = prompt("Nuovo nome:", bookingToEdit.user_name); if (newName === null) return; const newEmail = prompt("Nuova email:", bookingToEdit.user_email); if (newEmail === null) return; const newPhone = prompt("Nuovo telefono:", bookingToEdit.user_phone); if (newPhone === null) return; showLoader(); const { error } = await dbClient.from('bookings').update({ user_name: newName, user_email: newEmail, user_phone: newPhone }).eq('id', id); hideLoader(); if (error) { showModal('Errore', 'Impossibile aggiornare la prenotazione.'); }  else { showModal('Successo', 'Prenotazione aggiornata.'); await applyFilters(); await loadBookingsForDate(); } };
+        window.deleteBooking = async (id) => { if (!confirm("Sei sicuro di voler annullare questa prenotazione?")) return; showLoader(); const { error } = await dbClient.from('bookings').delete().eq('id', id); hideLoader(); if (error) { showModal('Errore', 'Impossibile annullare la prenotazione.'); }  else { showModal('Successo', 'Prenotazione annullata.'); await applyFilters(); await loadBookingsForDate(); } };
+        
+        // --- EVENT LISTENERS ---
+        fieldSelect.addEventListener('change', loadBookingsForDate);
+        datePicker.addEventListener('change', loadBookingsForDate);
+
+        // NUOVO: Event listeners per i filtri e la selezione multipla
+        function applyFilters() {
+            const filters = {
+                date: filterDate.value || null,
+                name: filterName.value.trim() || null,
+            };
+            loadAllBookings(filters);
+        }
+        filterDate.addEventListener('change', applyFilters);
+        filterName.addEventListener('input', applyFilters);
+        resetFiltersBtn.addEventListener('click', () => {
+            filterDate.value = '';
+            filterName.value = '';
+            applyFilters();
+        });
+        deleteSelectedBtn.addEventListener('click', deleteSelectedBookings);
+        selectAllCheckbox.addEventListener('change', (e) => {
+            document.querySelectorAll('.booking-checkbox').forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+            updateDeleteButtonState();
+        });
+        adminBookingsTable.addEventListener('change', (e) => {
+            if (e.target.classList.contains('booking-checkbox')) {
+                updateDeleteButtonState();
             }
         });
-        
+
         // --- INIZIALIZZAZIONE ---
         document.addEventListener('DOMContentLoaded', async () => {
             showLoader();
@@ -582,35 +490,7 @@
             await loadFields();
             hideLoader();
         });
-
-        // Copia e incolla le funzioni window.editBooking e window.deleteBooking dalla versione precedente
-        window.editBooking = async (id) => {
-            const { data: bookingToEdit, error: fetchError } = await dbClient.from('bookings').select('*').eq('id', id).single();
-            if (fetchError || !bookingToEdit) { showModal('Errore', 'Impossibile trovare la prenotazione.'); return; }
-
-            const newName = prompt("Nuovo nome:", bookingToEdit.user_name);
-            if (newName === null) return;
-            const newEmail = prompt("Nuova email:", bookingToEdit.user_email);
-            if (newEmail === null) return;
-            const newPhone = prompt("Nuovo telefono:", bookingToEdit.user_phone);
-            if (newPhone === null) return;
-
-            showLoader();
-            const { error } = await dbClient.from('bookings').update({ user_name: newName, user_email: newEmail, user_phone: newPhone }).eq('id', id);
-            hideLoader();
-            if (error) { showModal('Errore', 'Impossibile aggiornare la prenotazione.'); } 
-            else { showModal('Successo', 'Prenotazione aggiornata.'); await loadAllBookings(); await loadBookingsForDate(); }
-        };
-
-        window.deleteBooking = async (id) => {
-            if (!confirm("Sei sicuro di voler annullare questa prenotazione?")) return;
-            showLoader();
-            const { error } = await dbClient.from('bookings').delete().eq('id', id);
-            hideLoader();
-            if (error) { showModal('Errore', 'Impossibile annullare la prenotazione.'); } 
-            else { showModal('Successo', 'Prenotazione annullata.'); await loadAllBookings(); await loadBookingsForDate(); }
-        };
-
     </script>
 </body>
 </html>
+
